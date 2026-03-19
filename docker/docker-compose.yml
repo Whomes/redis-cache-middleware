@@ -1,0 +1,75 @@
+# Redis Cluster Docker Compose
+# 启动命令: docker-compose up -d
+
+version: '3.8'
+
+services:
+  redis-node-0:
+    image: redis:7.2-alpine
+    container_name: redis-node-0
+    ports:
+      - "7000:6379"
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes-7000.conf --cluster-node-timeout 5000 --port 6379
+    networks:
+      - redis-cluster
+
+  redis-node-1:
+    image: redis:7.2-alpine
+    container_name: redis-node-1
+    ports:
+      - "7001:6379"
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes-7001.conf --cluster-node-timeout 5000 --port 6379
+    networks:
+      - redis-cluster
+
+  redis-node-2:
+    image: redis:7.2-alpine
+    container_name: redis-node-2
+    ports:
+      - "7002:6379"
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes-7002.conf --cluster-node-timeout 5000 --port 6379
+    networks:
+      - redis-cluster
+
+  redis-node-3:
+    image: redis:7.2-alpine
+    container_name: redis-node-3
+    ports:
+      - "7003:6379"
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes-7003.conf --cluster-node-timeout 5000 --port 6379
+    networks:
+      - redis-cluster
+
+  redis-node-4:
+    image: redis:7.2-alpine
+    container_name: redis-node-4
+    ports:
+      - "7004:6379"
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes-7004.conf --cluster-node-timeout 5000 --port 6379
+    networks:
+      - redis-cluster
+
+  redis-node-5:
+    image: redis:7.2-alpine
+    container_name: redis-node-5
+    ports:
+      - "7005:6379"
+    command: redis-server --cluster-enabled yes --cluster-config-file nodes-7005.conf --cluster-node-timeout 5000 --port 6379
+    networks:
+      - redis-cluster
+
+  # Redis Sentinel（可选，高可用模式）
+  redis-sentinel-1:
+    image: redis:7.2-alpine
+    container_name: redis-sentinel-1
+    ports:
+      - "26379:26379"
+    command: redis-sentinel /etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/etc/redis/sentinel.conf
+    networks:
+      - redis-cluster
+
+networks:
+  redis-cluster:
+    driver: bridge

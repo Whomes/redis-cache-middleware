@@ -1,0 +1,99 @@
+spring:
+  application:
+    name: redis-cache-middleware
+
+  # Redis 配置（支持 Sentinel + Cluster 混合模式）
+  redis:
+    # 模式选择：standalone | sentinel | cluster
+    mode: cluster
+
+    # ===== Standalone 模式 =====
+    host: localhost
+    port: 6379
+    password:
+
+    # ===== Sentinel 模式 =====
+    sentinel:
+      master: mymaster
+      nodes:
+        - localhost:26379
+        - localhost:26380
+        - localhost:26381
+
+    # ===== Cluster 模式 =====
+    cluster:
+      nodes:
+        - localhost:7000
+        - localhost:7001
+        - localhost:7002
+        - localhost:7003
+        - localhost:7004
+        - localhost:7005
+      max-redirects: 3
+
+    # 连接池配置
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 20
+        min-idle: 5
+        max-wait: 3000ms
+
+  # Redisson 配置
+  redisson:
+    config: |
+      clusterServersConfig:
+        nodeAddresses:
+          - "redis://localhost:7000"
+          - "redis://localhost:7001"
+          - "redis://localhost:7002"
+        idleConnectionTimeout: 10000
+        connectTimeout: 10000
+        timeout: 3000
+        retryAttempts: 3
+        retryInterval: 1500
+        failedSlaveReconnectionInterval: 3000
+        failedSlaveCheckInterval: 60000
+        password: null
+        subscriptionsPerConnection: 5
+        clientName: null
+        loadBalancer: !<org.redisson.connection.balancer.RoundRobinLoadBalancer> {}
+        slaveConnectionMinimumIdleSize: 10
+        slaveConnectionPoolSize: 64
+        masterConnectionMinimumIdleSize: 10
+        masterConnectionPoolSize: 64
+        readMode: "SLAVE"
+        subscriptionMode: "SLAVE"
+        subscriptionConnectionMinimumIdleSize: 1
+        subscriptionConnectionPoolSize: 50
+        scanInterval: 1000
+        pingConnectionInterval: 0
+        keepAlive: false
+        tcpNoDelay: false
+      threads: 0
+      nettyThreads: 0
+      codec: !<org.redisson.codec.JsonJacksonCodec> {}
+      transportMode: "NIO"
+
+# 服务器配置
+server:
+  port: 8080
+
+# 日志配置
+logging:
+  level:
+    com.whomes.cache: DEBUG
+    org.springframework.data.redis: INFO
+
+# Actuator 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
